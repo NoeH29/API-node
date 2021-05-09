@@ -3,19 +3,19 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const dbConfig = require("./app/config/db.config");
 
-const app = express();
+const router = express.Router();
 
 var corsOptions = {
     origin: "http://localhost:8081",
 };
 
-app.use(cors(corsOptions));
+router.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
-app.use(bodyParser.json());
+router.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({
+router.use(bodyParser.urlencoded({
     extended: true
 }));
 
@@ -37,19 +37,19 @@ db.mongoose
     });
 
 // simple route
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
     res.json({
         message: "Bienvenue sur l'application de Noé H."
     });
 });
 
 // routes
-require("./app/routes/auth.routes")(app);
-require("./app/routes/user.routes")(app);
+router.use("./app/routes/auth.routes")(router);
+router.use("./app/routes/user.routes")(router);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+router.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
 
