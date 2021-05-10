@@ -44,8 +44,8 @@ router.get("/", (req, res) => {
 });
 
 // routes
-router.use("./app/routes/auth.routes")(router);
-router.use("./app/routes/user.routes")(router);
+router.use("./app/routes/auth.routes");
+router.use("./app/routes/user.routes");
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
