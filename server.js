@@ -2,20 +2,31 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const dbConfig = require("./app/config/db.config");
+const authRoutes = require('./app/routes/auth.routes.js')
+const userRoutes = require('./app/routes/user.routes.js')
+const app = express();
 
-const router = express.Router();
 
 var corsOptions = {
     origin: "http://localhost:8081",
 };
 
-router.use(cors(corsOptions));
+    app.use(function (req, res, next) {
+        res.header(
+            "Access-Control-Allow-Headers",
+            "x-access-token, Origin, Content-Type, Accept"
+        );
+        next();
+    });
+    
+
+app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
-router.use(bodyParser.json());
+app.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-router.use(bodyParser.urlencoded({
+app.use(bodyParser.urlencoded({
     extended: true
 }));
 
@@ -36,20 +47,15 @@ db.mongoose
         process.exit();
     });
 
-// simple route
-router.get("/", (req, res) => {
-    res.json({
-        message: "Bienvenue sur l'application de Noé H."
-    });
-});
+
 
 // routes
-router.use("./app/routes/auth.routes");
-router.use("./app/routes/user.routes");
+app.use("/auth",authRoutes);
+app.use("/user",userRoutes);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
-router.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
 
