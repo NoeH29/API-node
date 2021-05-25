@@ -2,6 +2,7 @@ const db = require("../models");
 const ROLES = db.ROLES;
 const User = db.user;
 
+
 checkDuplicateUsernameOrEmail = (req, res, next) => {
     // Username
     User.findOne({
@@ -33,12 +34,10 @@ checkDuplicateUsernameOrEmail = (req, res, next) => {
             }
 
             if (user) {
-                res.status(400).send({
+               return res.status(400).send({
                     message: "Failed! Email is already in use!"
-                });
-                return;
+                });                
             }
-
             next();
         });
     });

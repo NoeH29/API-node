@@ -47,7 +47,10 @@ db.mongoose
         process.exit();
     });
 
-
+// simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to noéH application." });
+});
 
 // routes
 app.use("/auth",authRoutes);
