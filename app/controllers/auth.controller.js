@@ -1,5 +1,6 @@
 const config = require("../config/auth.config");
 const db = require("../models");
+const _ = require('lodash');
 const User = db.user;
 const Role = db.role;
 const mailgun = require("mailgun-js");
@@ -16,7 +17,7 @@ exports.signup = (req, res) => {
     const username = req.body.username;
     const email = req.body.email;
     const password = bcrypt.hashSync(req.body.password, 8);
-    
+
     User.findOne({ email }).exec((err, user) => {
         if (user) {
             return res.satus(400).json({ error: "User with this email already exists." });
@@ -166,4 +167,73 @@ exports.signin = (req, res) => {
                 accessToken: token,
             });
         });
+};
+
+
+exports.forgotPassword = (req, res) => {
+    const { email } = req.body;
+
+    User.findOne({ email }, (err, user) => {
+        if (err || !user) {
+            return res.satus(400).json({ error: "User with this email already exists." });
+        }
+        let token = jwt.sign({_id: user._id}, config.resetpsw, {
+            expiresIn: 86400 // 24 hours
+        });
+
+        const data = {
+            from: "noreply@hello.com",
+            to: email,
+            subject: "Reset password Link",
+            html: `
+                <h2>please click on given link to reset your password</h2>
+                <p>${CLIENT_URL}/resetpassword/${token}<p>
+                `
+        };
+
+        return user.updateOne({resetLink: token}, function(err, success) {
+            if(err) {
+                return res.status(400).json({error: "reset password link error"});
+            } else {
+                mg.messages().send(data, function (error, body) {
+                    if (error) {
+                        return res.json({ error: err.message })
+                    }
+                    return res.json({ message: 'Email a été envoyer , suivez les instructions' });
+                });
+            }
+        })
+    });
+};
+
+exports.resetPassword = (req, res) => {
+    const {resetLink, newpassword} = req.body;
+    if(resetLink) {
+            jwt.verify(resetLink, config.resetpsw, function(error, decodedData) {
+                if(error) {
+                    return res.status(401).json({
+                        error: "Incorrect token or it is expired !"
+                    })
+                }
+                User.findOne({resetLink}, (err, user) => {
+                    if (err || !user) {
+                        return res.satus(400).json({ error: "User with this token does not exists." });
+                    }
+                    const obj = {
+                        password: newpassword,
+                        resetLink: ''
+                    }
+                    user = _.extend(user, obj);
+                    user.save((err, result) => {
+                        if(err) {
+                            return res.status(400).json({error: "reset password error"});
+                        } else {
+                                return res.status(200).json({ message: 'Ton password a été changer' });
+                        }
+                    })
+                })
+            })
+    } else {
+            return res.satus(400).json({ error: "Authentification error!" });
+    }
 };

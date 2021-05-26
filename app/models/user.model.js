@@ -6,6 +6,10 @@ const User = mongoose.model(
         username: String,
         email: String,
         password: String,
+        resetLink: {
+            String,
+            default: ''
+        },
         roles: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Role"
