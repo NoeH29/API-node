@@ -45,6 +45,7 @@ exports.signup = (req, res) => {
     });
 }
 
+
 exports.activateAccount = (req, res) => {
 
     const { token } = req.body;
@@ -177,7 +178,7 @@ exports.forgotPassword = (req, res) => {
         if (err || !user) {
             return res.satus(400).json({ error: "User with this email already exists." });
         }
-        let token = jwt.sign({_id: user._id}, config.resetpsw, {
+        let token = jwt.sign({ _id: user._id }, config.resetpsw, {
             expiresIn: 86400 // 24 hours
         });
 
@@ -191,9 +192,9 @@ exports.forgotPassword = (req, res) => {
                 `
         };
 
-        return user.updateOne({resetLink: token}, function(err, success) {
-            if(err) {
-                return res.status(400).json({error: "reset password link error"});
+        return user.updateOne({ resetLink: token }, function (err, success) {
+            if (err) {
+                return res.status(400).json({ error: "reset password link error" });
             } else {
                 mg.messages().send(data, function (error, body) {
                     if (error) {
@@ -207,33 +208,33 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.resetPassword = (req, res) => {
-    const {resetLink, newpassword} = req.body;
-    if(resetLink) {
-            jwt.verify(resetLink, config.resetpsw, function(error, decodedData) {
-                if(error) {
-                    return res.status(401).json({
-                        error: "Incorrect token or it is expired !"
-                    })
+    const { resetLink, newpassword } = req.body;
+    if (resetLink) {
+        jwt.verify(resetLink, config.resetpsw, function (error, decodedData) {
+            if (error) {
+                return res.status(401).json({
+                    error: "Incorrect token or it is expired !"
+                })
+            }
+            User.findOne({ resetLink }, (err, user) => {
+                if (err || !user) {
+                    return res.satus(400).json({ error: "User with this token does not exists." });
                 }
-                User.findOne({resetLink}, (err, user) => {
-                    if (err || !user) {
-                        return res.satus(400).json({ error: "User with this token does not exists." });
+                const obj = {
+                    password: newpassword,
+                    resetLink: ''
+                }
+                user = _.extend(user, obj);
+                user.save((err, result) => {
+                    if (err) {
+                        return res.status(400).json({ error: "reset password error" });
+                    } else {
+                        return res.status(200).json({ message: 'Ton password a été changer' });
                     }
-                    const obj = {
-                        password: newpassword,
-                        resetLink: ''
-                    }
-                    user = _.extend(user, obj);
-                    user.save((err, result) => {
-                        if(err) {
-                            return res.status(400).json({error: "reset password error"});
-                        } else {
-                                return res.status(200).json({ message: 'Ton password a été changer' });
-                        }
-                    })
                 })
             })
+        })
     } else {
-            return res.satus(400).json({ error: "Authentification error!" });
+        return res.satus(400).json({ error: "Authentification error!" });
     }
 };

@@ -2,8 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const dbConfig = require("./app/config/db.config");
-const authRoutes = require('./app/routes/auth.routes.js')
-const userRoutes = require('./app/routes/user.routes.js')
+const authRoutes = require('./app/routes/auth.routes.js');
+const userRoutes = require('./app/routes/user.routes.js');
+const articleRoutes = require('./app/routes/article.routes.js');
 const app = express();
 
 
@@ -33,6 +34,7 @@ app.use(bodyParser.urlencoded({
 const db = require("./app/models");
 const Role = db.role;
 
+
 db.mongoose
     .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
         useNewUrlParser: true,
@@ -55,6 +57,7 @@ app.get("/", (req, res) => {
 // routes
 app.use("/auth",authRoutes);
 app.use("/user",userRoutes);
+app.use("/article",articleRoutes);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 9080;
