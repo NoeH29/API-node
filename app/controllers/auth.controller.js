@@ -7,7 +7,7 @@ const mailgun = require("mailgun-js");
 const DOMAIN = "sandbox8d12f66f889647d7ab7e7f24cce73675.mailgun.org";
 const MAILGUN_APIKEY = "5e642754bdc7de45463c35c426eb4442-6ae2ecad-8ac905db";
 const mg = mailgun({ apiKey: MAILGUN_APIKEY, domain: DOMAIN });
-const CLIENT_URL = "http://localhost:8080";
+const CLIENT_URL = "http://localhost:8080/#";
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -32,15 +32,15 @@ exports.signup = (req, res) => {
             to: email,
             subject: "Account Activation Link",
             html: `
-                <h2<Please click on given link to activate you account</h2>
-                <p>${CLIENT_URL}/authentication/activate/${token}<p>
-        `,
+                <h2>please click on given link to reset your password</h2>
+                <p>${CLIENT_URL}/email-activate/${token}<p>
+                `
         };
         mg.messages().send(data, function (error, body) {
             if (error) {
                 return res.json({ error: err.message, })
             }
-            return res.json({ message: 'Email a été envoyer pour activer votre compte' });
+            return res.json({ message: 'Un Email a été envoyer pour activer votre compte' });
         });
     });
 }

@@ -4,9 +4,11 @@ const cors = require("cors");
 const dbConfig = require("./app/config/db.config");
 const authRoutes = require('./app/routes/auth.routes.js');
 const userRoutes = require('./app/routes/user.routes.js');
-const articleRoutes = require('./app/routes/article.routes.js');
+//const articleRoutes = require('./app/routes/article.routes.js');
+const path = __dirname + '/app/views/';
 const app = express();
 
+app.use(express.static(path));
 
 var corsOptions = {
     origin: "http://localhost:8081",
@@ -51,16 +53,16 @@ db.mongoose
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to noéH application." });
+    res.sendFile(path + "index.html");
 });
 
 // routes
 app.use("/auth",authRoutes);
 app.use("/user",userRoutes);
-app.use("/article",articleRoutes);
+
 
 // set port, listen for requests
-const PORT = process.env.PORT || 9080;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
