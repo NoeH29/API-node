@@ -33,7 +33,7 @@ isAdmin = (req, res, next) => {
         }
 
         Role.find({
-                _id: {
+                id: {
                     $in: user.roles
                 }
             },

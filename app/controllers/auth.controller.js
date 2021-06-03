@@ -78,7 +78,7 @@ exports.activateAccount = (req, res) => {
                                 return;
                             }
 
-                            newUser.roles = roles.map(role => role._id);
+                            newUser.roles = roles.map(role => role.id);
                             newUser.save(err => {
                                 if (err) {
                                     res.status(500).send({ message: err });
@@ -96,7 +96,7 @@ exports.activateAccount = (req, res) => {
                             return;
                         }
 
-                        newUser.roles = [role._id];
+                        newUser.roles = [role.id];
                         newUser.save(err => {
                             if (err) {
                                 res.status(500).send({ message: err });
@@ -161,7 +161,7 @@ exports.signin = (req, res) => {
                 authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
             }
             res.status(200).send({
-                id: user._id,
+                id: user.id,
                 username: user.username,
                 email: user.email,
                 roles: authorities,
@@ -178,7 +178,7 @@ exports.forgotPassword = (req, res) => {
         if (err || !user) {
             return res.satus(400).json({ error: "User with this email already exists." });
         }
-        let token = jwt.sign({ _id: user._id }, config.resetpsw, {
+        let token = jwt.sign({ id: user.id }, config.resetpsw, {
             expiresIn: 86400 // 24 hours
         });
 

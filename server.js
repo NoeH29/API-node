@@ -4,7 +4,8 @@ const cors = require("cors");
 const dbConfig = require("./app/config/db.config");
 const authRoutes = require('./app/routes/auth.routes.js');
 const userRoutes = require('./app/routes/user.routes.js');
-//const articleRoutes = require('./app/routes/article.routes.js');
+const articleRoutes = require('./app/routes/article.routes.js');
+
 const path = __dirname + '/app/views/';
 const app = express();
 
@@ -59,6 +60,7 @@ app.get("/", (req, res) => {
 // routes
 app.use("/auth",authRoutes);
 app.use("/user",userRoutes);
+app.use("/articles",articleRoutes);
 
 
 // set port, listen for requests
