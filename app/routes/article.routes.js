@@ -22,7 +22,7 @@ const controller = require("../controllers/article.controller");
   Router.delete("/:id", controller.delete);
 
   // Create a new Article
-  Router.delete("/", controller.deleteAll);
+  Router.delete("/articles", controller.deleteAll);
 
   module.exports = Router;
 

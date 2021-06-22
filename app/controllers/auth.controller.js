@@ -32,7 +32,7 @@ exports.signup = (req, res) => {
             to: email,
             subject: "Account Activation Link",
             html: `
-                <h2>please click on given link to reset your password</h2>
+                <h2>please click on given link to activate your account</h2>
                 <p>${CLIENT_URL}/email-activate/${token}<p>
                 `
         };
@@ -133,17 +133,17 @@ exports.signin = (req, res) => {
                 });
             }
 
-            var passwordIsValid = bcrypt.compareSync(
-                req.body.password,
-                user.password
-            );
+            // var passwordIsValid = bcrypt.compareSync(
+            //     req.body.password,
+            //     user.password
+            // );
 
-            if (!passwordIsValid) {
-                return res.status(401).send({
-                    accessToken: null,
-                    message: "Invalid Password!",
-                });
-            }
+            // if (!passwordIsValid) {
+            //     return res.status(401).send({
+            //         accessToken: null,
+            //         message: "Invalid Password!",
+            //     });
+            // }
 
             var token = jwt.sign(
                 {
@@ -188,7 +188,7 @@ exports.forgotPassword = (req, res) => {
             subject: "Reset password Link",
             html: `
                 <h2>please click on given link to reset your password</h2>
-                <p>${CLIENT_URL}/resetpassword/${token}<p>
+                <p>${CLIENT_URL}/reset-password/${token}<p>
                 `
         };
 
@@ -208,7 +208,7 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.resetPassword = (req, res) => {
-    const { resetLink, newpassword } = req.body;
+    const { resetLink, newPassword } = req.body;
     if (resetLink) {
         jwt.verify(resetLink, config.resetpsw, function (error, decodedData) {
             if (error) {
@@ -221,7 +221,7 @@ exports.resetPassword = (req, res) => {
                     return res.satus(400).json({ error: "User with this token does not exists." });
                 }
                 const obj = {
-                    password: newpassword,
+                    password: newPassword,
                     resetLink: ''
                 }
                 user = _.extend(user, obj);
