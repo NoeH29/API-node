@@ -13,13 +13,13 @@ const controller = require("../controllers/article.controller");
   Router.get("/published", controller.findAllPublished);
 
   // Retrieve a single Article with id
-  Router.get("/:id", controller.findOne);
+  Router.get("/articles/:id", controller.findOne);
 
   // Update a Article with id
-  Router.put("/:id", controller.update);
+  Router.put("/articles/:id", controller.update);
 
   // Delete a Article with id
-  Router.delete("/:id", controller.delete);
+  Router.delete("/articles/:id", controller.delete);
 
   // Create a new Article
   Router.delete("/articles", controller.deleteAll);

@@ -1,11 +1,10 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const dbConfig = require("./app/config/db.config");
 const authRoutes = require('./app/routes/auth.routes.js');
 const userRoutes = require('./app/routes/user.routes.js');
 const articleRoutes = require('./app/routes/article.routes.js');
-
+require('dotenv').config();
 const path = __dirname + '/app/views/';
 const app = express();
 
@@ -26,20 +25,15 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 
-// parse requests of content-type - application/json
-app.use(bodyParser.json());
-
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const db = require("./app/models");
 const Role = db.role;
 
 
 db.mongoose
-    .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+    .connect(`mongodb://${process.env.HOST}:${process.env.PORT}/${process.env.DB}`, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -60,11 +54,11 @@ app.get("/", (req, res) => {
 // routes
 app.use("/auth",authRoutes);
 app.use("/user",userRoutes);
-app.use("/articles",articleRoutes);
+app.use("/api",articleRoutes);
 
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = 8080;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });

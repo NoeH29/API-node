@@ -1,13 +1,11 @@
-const config = require("../config/auth.config");
 const db = require("../models");
+require('dotenv').config();
 const _ = require('lodash');
 const User = db.user;
 const Role = db.role;
 const mailgun = require("mailgun-js");
-const DOMAIN = "sandbox8d12f66f889647d7ab7e7f24cce73675.mailgun.org";
-const MAILGUN_APIKEY = "5e642754bdc7de45463c35c426eb4442-6ae2ecad-8ac905db";
-const mg = mailgun({ apiKey: MAILGUN_APIKEY, domain: DOMAIN });
-const CLIENT_URL = "http://localhost:8080/#";
+const mg = mailgun({ apiKey: process.env.MAILGUN_APIKEY, domain: process.env.DOMAIN });
+
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -20,11 +18,11 @@ exports.signup = (req, res) => {
 
     User.findOne({ email }).exec((err, user) => {
         if (user) {
-            return res.satus(400).json({ error: "User with this email already exists." });
+            return res.status(400).json({ error: "User with this email already exists." });
         }
 
-        let token = jwt.sign({ username, email, password }, config.secret, {
-            expiresIn: 86400 // 24 hours
+        let token = jwt.sign({ username, email, password }, process.env.SECRET, {
+            expiresIn: '20m' // 24 hours
         });
 
         const data = {
@@ -33,7 +31,7 @@ exports.signup = (req, res) => {
             subject: "Account Activation Link",
             html: `
                 <h2>please click on given link to activate your account</h2>
-                <p>${CLIENT_URL}/email-activate/${token}<p>
+                <p>${process.env.CLIENT_URL}/email-activate/${token}<p>
                 `
         };
         mg.messages().send(data, function (error, body) {
@@ -50,7 +48,7 @@ exports.activateAccount = (req, res) => {
 
     const { token } = req.body;
     if (token) {
-        jwt.verify(token, config.secret, function (err, decodedToken) {
+        jwt.verify(token, process.env.SECRET, function (err, decodedToken) {
             if (err) {
                 return res.status(400).json({ error: "Incorrect or Expired link." });
             }
@@ -133,23 +131,23 @@ exports.signin = (req, res) => {
                 });
             }
 
-            // var passwordIsValid = bcrypt.compareSync(
-            //     req.body.password,
-            //     user.password
-            // );
+            var passwordIsValid = bcrypt.compareSync(
+                req.body.password,
+                user.password
+            );
 
-            // if (!passwordIsValid) {
-            //     return res.status(401).send({
-            //         accessToken: null,
-            //         message: "Invalid Password!",
-            //     });
-            // }
+            if (!passwordIsValid) {
+                return res.status(401).send({
+                    accessToken: null,
+                    message: "Invalid Password!",
+                });
+            }
 
             var token = jwt.sign(
                 {
                     id: user.id,
                 },
-                config.secret,
+                process.env.SECRET,
                 {
                     expiresIn: 86400, // 24 hours
                 }
@@ -176,9 +174,9 @@ exports.forgotPassword = (req, res) => {
 
     User.findOne({ email }, (err, user) => {
         if (err || !user) {
-            return res.satus(400).json({ error: "User with this email already exists." });
+            return res.status(400).json({ error: "User with this email already exists." });
         }
-        let token = jwt.sign({ id: user.id }, config.resetpsw, {
+        let token = jwt.sign({ id: user.id }, process.env.RESETPSW, {
             expiresIn: 86400 // 24 hours
         });
 
@@ -188,7 +186,7 @@ exports.forgotPassword = (req, res) => {
             subject: "Reset password Link",
             html: `
                 <h2>please click on given link to reset your password</h2>
-                <p>${CLIENT_URL}/reset-password/${token}<p>
+                <p>${process.env.CLIENT_URL}/reset-password/${token}<p>
                 `
         };
 
@@ -210,7 +208,7 @@ exports.forgotPassword = (req, res) => {
 exports.resetPassword = (req, res) => {
     const { resetLink, newPassword } = req.body;
     if (resetLink) {
-        jwt.verify(resetLink, config.resetpsw, function (error, decodedData) {
+        jwt.verify(resetLink, process.env.RESETPSW, function (error, decodedData) {
             if (error) {
                 return res.status(401).json({
                     error: "Incorrect token or it is expired !"
@@ -218,7 +216,7 @@ exports.resetPassword = (req, res) => {
             }
             User.findOne({ resetLink }, (err, user) => {
                 if (err || !user) {
-                    return res.satus(400).json({ error: "User with this token does not exists." });
+                    return res.status(400).json({ error: "User with this token does not exists." });
                 }
                 const obj = {
                     password: newPassword,
@@ -235,6 +233,6 @@ exports.resetPassword = (req, res) => {
             })
         })
     } else {
-        return res.satus(400).json({ error: "Authentification error!" });
+        return res.status(400).json({ error: "Authentification error!" });
     }
 };
