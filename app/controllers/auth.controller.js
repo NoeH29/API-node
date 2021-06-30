@@ -206,7 +206,8 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.resetPassword = (req, res) => {
-    const { resetLink, newPassword } = req.body;
+    const resetLink = req.body.resetLink;
+    const newPassword = bcrypt.hashSync(req.body.newPassword, 8);
     if (resetLink) {
         jwt.verify(resetLink, process.env.RESETPSW, function (error, decodedData) {
             if (error) {
